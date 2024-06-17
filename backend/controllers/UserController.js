@@ -1,5 +1,6 @@
 // importando o Model User
 const User = require('../models/User')
+const bcrypt = require('bcrypt')
 
 // exportando UserController
 module.exports = class UserController {
@@ -50,5 +51,30 @@ module.exports = class UserController {
             res.status(422).json({message: 'Por favor, utilize outro e=mail!'})
             return
         }
+
+        // criando senha 
+        // gerando 12 caracteres a mais para senha
+        const salt = await bcrypt.genSalt(12)
+
+        // criando um hash (senha criptografada)
+        const passwordHash = await bcrypt.hash(password, salt)
+
+        // criando usuário
+        const user = new User({
+            name: name,
+            email: email,
+            phone: phone,
+            password: passwordHash
+        })
+
+        try {
+            // salvar usuário
+            const newUser = await user.save()
+            res.status(201).json({message: 'Usuário criado!', newUser})
+            return
+        } catch(error) {
+            res.status(500).json({message: error})
+        }
+
     }
 }
