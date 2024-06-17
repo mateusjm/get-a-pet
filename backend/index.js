@@ -1,7 +1,12 @@
 // importando express
 const express = require('express')
 const cors = require('cors')
+
+// definindo app
 const app = express()
+
+// importando routes
+const UserRoutes = require('./routes/UserRoutes')
 
 // configurando JSON response
 app.use(express.json())
@@ -13,6 +18,7 @@ app.use(cors({ credentials: true, origin: 'http://localhost:3000'}))
 app.use(express.static('public'))
 
 // routes
+app.use('/users', UserRoutes)
 
 // abrir na porta 5000
 app.listen(5000)
