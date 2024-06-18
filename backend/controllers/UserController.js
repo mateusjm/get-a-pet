@@ -82,4 +82,41 @@ module.exports = class UserController {
         }
 
     }
+
+    // login 
+    static async login(req, res) {
+        // puxando os dados do body pela requisição
+        const {email, password} = req.body
+
+        // validações para as requisições
+        if(!email) {
+            res.status(422).json({message: 'O e-mail é obrigatório'})
+        }
+
+        if(!password) {
+            res.status(422).json({message: 'A senha é obrigatória!'})
+            return
+        }
+
+        // verificando se usuário já existe
+        const user = await User.findOne({email: email})
+
+        if(!user) {
+            res.status(422).json({message: 'Usuário não encontrado!'})
+            return
+        }
+
+        // checando se a senha confere com a do Banco de Dados
+        const checkPassword = await bcrypt.compare(password, user.password)
+
+        // se a senha não conferir
+        if(!checkPassword) {
+            res.status(422).json({message: 'Senha inválida!'})
+            return
+        }
+
+        // login certo, recebe o token
+        await createUserToken(user, req, res)
+
+    }
 }
