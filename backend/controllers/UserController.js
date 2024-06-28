@@ -1,9 +1,11 @@
 // importando o Model User
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 // importando helpers
 const createUserToken = require('../helpers/create-user-token')
+const getToken = require('../helpers/get-token')
 
 // exportando UserController
 module.exports = class UserController {
@@ -117,6 +119,43 @@ module.exports = class UserController {
 
         // login certo, recebe o token
         await createUserToken(user, req, res)
-
     }
+
+    // obtendo o usuário através do token, para verificar se está logado
+    static async checkUser(req, res) {
+        let currentUser
+
+        if(req.headers.authorization) {
+            const token = getToken(req)
+            const decoded = jwt.verify(token, 'nossosecret')
+
+            currentUser = await User.findById(decoded.id)
+            currentUser.password = undefined
+        } else {
+            currentUser = null
+        }
+
+        res.status(200).send(currentUser)
+    }
+
+    // resgatando usuário por id
+    static async getUserById(req, res) {
+        const id = req.params.id
+
+        const user = await User.findById(id).select('-password')
+
+        if(!user) {
+            res.status(422).json({message: 'Usuário não encontrado'})
+            return
+        }
+
+        res.status(200).json({user})
+    }
+
+    // update do usuário
+    static async editUser(req, res) {
+        res.status(200).json({message: 'Deu certo update!'})
+        return
+    }
+
 }
