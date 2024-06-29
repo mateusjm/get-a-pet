@@ -17,7 +17,7 @@ const checkToken = (req, res, next) => {
         return res.status(401).json({message: 'Acesso negado!'})
     }
 
-    // jwt vai verificar a autencidade do token, se ele condiz 
+    // jwt vai verificar a autenticidade do token, se ele condiz 
     try {
         const verified = jwt.verify(token, 'nossosecret')
         req.user = verified
